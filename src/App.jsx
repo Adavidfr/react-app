@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import { useState } from 'react'
 import './App.css'
 
 export const App = () => {
@@ -8,10 +8,12 @@ export const App = () => {
         <>
             <h1>Vite + React</h1>
             <div className="card">
-                <button onClick={() => setCount((count) => count + 1)}>
-                    count is {count}
+                <button onClick={() => setCount((count) => count + 1) }>
+                    el contador es {count}
                 </button>
+
             </div>
         </>
     )
 }
+
