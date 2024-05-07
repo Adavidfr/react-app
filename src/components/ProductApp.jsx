@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import { listProduct } from "../services/ProductService";
-import { ProductGrid } from "./ProductGrid";
-import { PropTypes } from 'prop-types';
-import { ProductForm } from "./ProductForm";
+import {useEffect, useState} from "react";
+import {create, findAll, remove, update} from "../services/ProductService";
+import {ProductGrid} from "./ProductGrid";
+import {PropTypes} from 'prop-types';
+import {ProductForm} from "./ProductForm";
 
-export const ProductApp = ({ title }) => {
+export const ProductApp = ({title}) => {
 
     const [products, setProducts] = useState([]);
 
@@ -15,46 +15,52 @@ export const ProductApp = ({ title }) => {
         price: ''
     })
 
+    const getProducts = async () => {
+        const result = await findAll();
+        setProducts(result.data._embedded.products);
+    }
+
     useEffect(() => {
-        const result = listProduct();
-        setProducts(result);
+        getProducts();
     }, []);
 
-    const handlerAddProduct = (product) => {
-        console.log(product);
+    const handlerAddProduct = async (product) => {
 
         if (product.id > 0) {
+            const response = await update(product);
+            console.log(product);
             setProducts(products.map(prod => {
-                if (prod.id == product.id) {
-                    return {...product}
+                if (prod.id == response.data.id) {
+                    return {...response.data}
                 }
                 return prod;
             }));
         } else {
-            setProducts([...products, { ...product, id: new Date().getTime() }]);
+            const response = await create(product);
+            setProducts([...products, {...response.data}]);
         }
     }
     const handlerRemoveProduct = (id) => {
-        console.log(id);
+        remove(id);
         setProducts(products.filter(product => product.id != id));
     }
 
     const handlerProductSelected = (product) => {
-        setProductSelected({ ...product });
+        setProductSelected({...product});
     }
     return (
         <div className="container my-4">
             <h2>{title}</h2>
             <div className="row">
                 <div className="col">
-                    <ProductForm handlerAdd={handlerAddProduct} productSelected={ productSelected} />
+                    <ProductForm handlerAdd={handlerAddProduct} productSelected={productSelected}/>
                 </div>
                 <div className="col">
                     {
-                        products.length > 0 ? <ProductGrid products={products} handlerRemove={handlerRemoveProduct} handlerProductSelected={handlerProductSelected} />
+                        products.length > 0 ? <ProductGrid products={products} handlerRemove={handlerRemoveProduct}
+                                                           handlerProductSelected={handlerProductSelected}/>
                             : <div className="alert alert-warning">No hay productos en el sistema!</div>
                     }
-
                 </div>
             </div>
         </div>
